@@ -1,6 +1,6 @@
 from typing import Optional
 
-from pydantic import BaseSettings
+from pydantic_settings import BaseSettings
 from functools import lru_cache
 
 
@@ -12,8 +12,8 @@ class MqttSettings(BaseSettings):
     host: str = "localhost"
     port: int = 1883
     topic: str = "sensors"
-    username: Optional[str]
-    password: Optional[str]
+    username: str = 'default_user'  # Default username
+    password: str = 'default_pass'  # Default password
 
 
 class Settings(BaseSettings):
@@ -28,3 +28,4 @@ class Settings(BaseSettings):
 @lru_cache()
 def get_settings() -> Settings:
     return Settings()
+

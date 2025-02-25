@@ -20,6 +20,16 @@ services:
     depends_on:
       - mqtt_broker
 
+  data_collector:
+    build: ./data_collector
+    volumes:
+      - data:/app/storage  # Use named volume for long-term storage
+    environment:
+      - MQTT_BROKER=mqtt_broker
+      - MQTT_PORT=1883
+      - MQTT_TOPIC=sensors
+    depends_on:
+      - mqtt_broker
 
 volumes:
-  data: ~
+  data:  # Persistent storage for collected data

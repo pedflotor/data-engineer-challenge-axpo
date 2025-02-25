@@ -55,7 +55,7 @@ docker-compose logs data_collector --> check exposing data to http://localhost:8
 
 Implement one of the following features:
 
-* resample IoT data to 1 min mean values
+* resample IoT data to 1 min mean values --> http://localhost:8000/sensors/aggregated10/
 * data catalogue for customers
 * data quality indicator
 

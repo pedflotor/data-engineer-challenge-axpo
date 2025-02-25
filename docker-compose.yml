@@ -30,6 +30,8 @@ services:
       - MQTT_TOPIC=sensors
     depends_on:
       - mqtt_broker
+    ports:
+      - "8000:8000"
 
 volumes:
   data:  # Persistent storage for collected data

@@ -1,43 +1,59 @@
-import paho.mqtt.client as mqtt
 import json
 import time
-import threading
-import os
+import paho.mqtt.client as mqtt
+from sqlalchemy import create_engine, Column, Integer, Float, String, DateTime
+from sqlalchemy.orm import declarative_base, sessionmaker
+from datetime import datetime
 
-MQTT_BROKER = os.getenv("MQTT_BROKER", "mqtt_broker")
-MQTT_PORT = int(os.getenv("MQTT_PORT", 1883))
-MQTT_TOPIC = os.getenv("MQTT_TOPIC", "sensors")
-OUTPUT_FILE = "/app/storage/raw_data.json"
+# Database setup
+DATABASE_URL = "sqlite:///iot_data.db"
+engine = create_engine(DATABASE_URL)
+SessionLocal = sessionmaker(bind=engine)
+Base = declarative_base()
 
-# Stop execution after 10 seconds
-def stop_execution():
-    print("Stopping MQTT client...")
-    client.loop_stop()
-    client.disconnect()
+# Define IoT Data Model
+class SensorData(Base):
+    __tablename__ = "sensor_data"
+    
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    sensor_id = Column(String, index=True)
+    value = Column(Float)
+    timestamp = Column(DateTime, default=datetime.utcnow)
 
-def on_connect(client, userdata, flags, rc):
-    print("Connected to MQTT Broker with result code " + str(rc))
-    client.subscribe(MQTT_TOPIC)
+Base.metadata.create_all(engine)
 
-def on_message(client, userdata, msg):
+# MQTT Setup
+MQTT_BROKER = "mqtt_broker"
+MQTT_PORT = 1883
+MQTT_TOPIC = "sensors"
+
+def on_message(client, userdata, message):
+    """Process received MQTT messages."""
+    session = SessionLocal()
     try:
-        data = json.loads(msg.payload.decode())
-        print(f"Received: {data}")
+        payload = json.loads(message.payload.decode("utf-8"))
+        sensor_data = SensorData(
+            sensor_id=payload.get("sensor_id"),
+            value=payload.get("value"),
+            timestamp=datetime.utcnow()
+        )
+        session.add(sensor_data)
+        session.commit()
+        print(f"Stored: {sensor_data.sensor_id} - {sensor_data.value}")
+    except Exception as e:
+        print(f"Error: {e}")
+    finally:
+        session.close()
 
-        # Append data to the file in persistent storage
-        with open(OUTPUT_FILE, "a") as f:
-            f.write(json.dumps(data) + "\n")
-
-    except json.JSONDecodeError as e:
-        print(f"Error decoding JSON: {e}")
-
-# Initialize MQTT client
 client = mqtt.Client()
-client.on_connect = on_connect
 client.on_message = on_message
+client.connect(MQTT_BROKER, MQTT_PORT)
+client.subscribe(MQTT_TOPIC)
+client.loop_start()
 
-# Connect and start listening
-client.connect(MQTT_BROKER, MQTT_PORT, 60)
-threading.Timer(10, stop_execution).start()  # Stop after 10 seconds
-client.loop_forever()
+# # Uncomment to limit the data generation
+# # Run for 10 seconds, then stop
+# time.sleep(10)
+# client.loop_stop()
+# client.disconnect()
 

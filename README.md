@@ -38,11 +38,18 @@ extend the docker compose environment, so we can run your solution using
 The first goal is to collect and store the IoT data as well as the corresponding
 sensors in raw format to a low cost long term storage.
 
+docker-compose up -d --build --> build images
+docker ps --> check images running
+docker logs data-engineer-challenge-axpo-iot_data_generator-1 --> check data generated
+docker-compose down --> stop
+
+
 #### Step 2:
 
 The second goal is to make the data available so BI specialists can query
 historical data until current point in time (near real time) for different
 sensors.
+docker-compose logs data_collector --> check exposing data to http://localhost:8000/sensors/
 
 #### Step 3 (optional, if there is still time after Part Two):
 

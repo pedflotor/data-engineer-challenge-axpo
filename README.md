@@ -66,6 +66,52 @@ services and products are out there.
 
 * How would you solve the problem stated in Part One now?
 
+#### Infraestructure
+1. Data Ingestion:
+Azure IoT Hub:
+For ingesting IoT data. Supports a variety of protocols, including MQTT, which is ideal for low-latency, high-frequency sensor data.
+2. Data Storage:
+Azure Blob Storage:
+Provides cost-effective, scalable storage. Store the raw IoT sensor data in its native format (e.g., JSON, CSV, or Avro).
+Azure Data Lake Storage Gen2: supports hierarchical namespace and allows for easy organization of data into folders, which is perfect for organizing time-series data or sensor-specific files.
+3. Data Processing:
+
+    3.1 Azure Stream Analytics (more specific)
+    
+    3.2 Azure Databricks (global solution, advanced data processing, including batch processing and large-scale transformations). Can aggregate raw IoT data into structured forms (such as Parquet or Delta format) and store the results in Azure Blob Storage or a data warehouse.
+
+    3.3 Azure Functions (serverless compute to trigger specific tasks based on events)
+
+4. Data Storage for Querying:
+    
+    4.1 Azure SQL Database (For structured querying of processed sensor data)
+
+    4.2 Azure Cosmos DB (in case the IoT data needs to be stored in a NoSQL format)
+
+    4.3 Azure Time Series Insights (For time-series data specifically)
+
+5. Data Access Layer (API):
+- Azure API Management (create a front-end API for exposing processed data stored in Azure SQL Database or Cosmos DB) 
+
+6. Data Monitoring & Alerts:
+- Azure Monitor (monitor the health of data pipelines and IoT devices. Set up alerts)
+- Azure Application Insights (Used to identify bottlenecks, track requests, and monitor the performance of services)
+
+7. Data Quality Monitoring:
+- Azure Purview (Discover and classify data)
+- Great Expectations (on Databricks) (Fine-grained control over data quality)
+
+8. Security & Compliance:
+- Azure Active Directory (Azure AD) (User authentication and role-based access control (RBAC))
+- Encryption & Network Security (Azure Key Vault)
+- Use Virtual Networks to secure the communication between services.
+
+#### Deployment Strategy on Azure
+- Infrastructure as Code: Use Azure Resource Manager (ARM) Templates or Terraform to define the IaC. Allows to version control the infrastructure.
+- CI/CD Pipelines: Set up Azure DevOps to automate the deployment of both the infrastructure (using ARM Templates or Terraform) and the application code (e.g., APIs, functions, or data processing scripts). Automate testing and monitoring of these deployments to ensure seamless delivery.
+
+
+
 Design you favorite solution to solve the problem. There is no need for any
 code in this part. Just write down your thoughts and arguments in a technical
 draft. Don't lose time over-engineering or over-designing it.
